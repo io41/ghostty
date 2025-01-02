@@ -1584,7 +1584,7 @@ fn mouseRefreshLinks(
 
         const link = (try self.linkAtPos(pos)) orelse break :link .{ null, false };
         switch (link.action) {
-            .open => {
+            .open, .exec, .copy_to_clipboard => {
                 const str = try self.io.terminal.screens.active.selectionString(alloc, .{
                     .sel = link.selection,
                     .trim = false,
@@ -4506,6 +4506,15 @@ fn processLinks(self: *Surface, pos: apprt.CursorPos) !bool {
 
             const url_to_open = resolved_path orelse str;
             try self.openUrl(.{ .kind = .unknown, .url = url_to_open });
+        },
+
+        .copy_to_clipboard => {
+            const str = try self.io.terminal.screen.selectionString(self.alloc, .{
+                .sel = sel,
+                .trim = false,
+            });
+            defer self.alloc.free(str);
+            try self.rt_surface.setClipboardString(str, .standard, false);
         },
 
         ._open_osc8 => {
