@@ -4508,6 +4508,19 @@ fn processLinks(self: *Surface, pos: apprt.CursorPos) !bool {
             try self.openUrl(.{ .kind = .unknown, .url = url_to_open });
         },
 
+        .exec => {
+            const str = try self.io.terminal.screen.selectionString(self.alloc, .{
+                .sel = sel,
+                .trim = false,
+            });
+            defer self.alloc.free(str);
+            try internal_os.exec(
+                self.alloc,
+                action.exec,
+                str,
+            );
+        },
+
         .copy_to_clipboard => {
             const str = try self.io.terminal.screen.selectionString(self.alloc, .{
                 .sel = sel,
