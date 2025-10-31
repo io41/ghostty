@@ -4527,7 +4527,13 @@ fn processLinks(self: *Surface, pos: apprt.CursorPos) !bool {
                 .trim = false,
             });
             defer self.alloc.free(str);
-            try self.rt_surface.setClipboardString(str, .standard, false);
+            self.rt_surface.setClipboard(.standard, &.{.{
+                .mime = "text/plain",
+                .data = str,
+            }}, false) catch |err| {
+                log.err("error copying link to clipboard err={}", .{err});
+                return false;
+            };
         },
 
         ._open_osc8 => {
