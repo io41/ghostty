@@ -4509,7 +4509,7 @@ fn processLinks(self: *Surface, pos: apprt.CursorPos) !bool {
         },
 
         .exec => {
-            const str = try self.io.terminal.screen.selectionString(self.alloc, .{
+            const str = try self.io.terminal.screens.active.selectionString(self.alloc, .{
                 .sel = sel,
                 .trim = false,
             });
@@ -4522,7 +4522,7 @@ fn processLinks(self: *Surface, pos: apprt.CursorPos) !bool {
         },
 
         .copy_to_clipboard => {
-            const str = try self.io.terminal.screen.selectionString(self.alloc, .{
+            const str = try self.io.terminal.screens.active.selectionString(self.alloc, .{
                 .sel = sel,
                 .trim = false,
             });
