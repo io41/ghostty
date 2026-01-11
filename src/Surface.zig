@@ -4510,20 +4510,20 @@ fn processLinks(self: *Surface, pos: apprt.CursorPos) !bool {
 
         .exec => {
             const str = try self.io.terminal.screens.active.selectionString(self.alloc, .{
-                .sel = sel,
+                .sel = link.selection,
                 .trim = false,
             });
             defer self.alloc.free(str);
             try internal_os.exec(
                 self.alloc,
-                action.exec,
+                link.action.exec,
                 str,
             );
         },
 
         .copy_to_clipboard => {
             const str = try self.io.terminal.screens.active.selectionString(self.alloc, .{
-                .sel = sel,
+                .sel = link.selection,
                 .trim = false,
             });
             defer self.alloc.free(str);
