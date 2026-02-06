@@ -4506,7 +4506,20 @@ pub fn finalize(self: *Config) !void {
 
     // If URLs are disabled, cut off the first link. The first link is
     // always the URL matcher.
-    if (!self.@"link-url") self.link.links.items = self.link.links.items[1..];
+    if (!self.@"link-url") {
+        self.link.links.items = self.link.links.items[1..];
+    } else if (self.link.links.items.len > 1) {
+        // The URL matcher is always lowest priority of any configured
+        // links. It was added first (index 0) during default(), so
+        // rotate it to the end now that user links have been added.
+        const url_link = self.link.links.items[0];
+        std.mem.copyForwards(
+            inputpkg.Link,
+            self.link.links.items[0 .. self.link.links.items.len - 1],
+            self.link.links.items[1..self.link.links.items.len],
+        );
+        self.link.links.items[self.link.links.items.len - 1] = url_link;
+    }
 
     // We warn when the quit-after-last-window-closed-delay is set to a very
     // short value because it can cause Ghostty to quit before the first
@@ -8158,9 +8171,9 @@ pub const RepeatableLink = struct {
 
     /// Used by Formatter
     pub fn formatEntry(self: Self, formatter: formatterpkg.EntryFormatter) !void {
-        for (0.., self.links.items) |i, *item| {
+        for (self.links.items) |*item| {
             // Don't display the default link
-            if (i > 0 or !std.mem.eql(u8, item.regex, url.regex)) {
+            if (!std.mem.eql(u8, item.regex, url.regex)) {
                 try formatter.formatEntry([]const u8, item.regex);
             }
         }
